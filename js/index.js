@@ -5,6 +5,8 @@ $(function () {
 
     loadMapBtn.click(loadMap);
     mapFile.on('change', setMap);
+    map.click(canvasClicked);
+
     // Development only
     var img = new Image();
     img.onload = function() {
@@ -20,6 +22,8 @@ function loadMap() {
 
 function setMap() {
     var file = $('#mapFile').get(0).files[0];
+
+    // TODO: Save to db
 
     var reader  = new FileReader();
     reader.onload = function(event) {
@@ -38,4 +42,27 @@ function setMap() {
     };
 
     reader.readAsDataURL(file);
+}
+
+function  canvasClicked(event) {
+    // TODO: Save to db
+
+    var marker = new Image();
+    marker.onload = function() {
+        var ctx = $('#map').get(0).getContext('2d');
+        var coordinates = getMousePos(event);
+        var offset = 16;
+
+        ctx.drawImage(marker, coordinates.x - offset, coordinates.y - offset);
+    };
+    marker.src = 'upload/marker.png';
+}
+
+function getMousePos(event) {
+    var canvas = $('#map');
+    var rect = canvas.get(0).getBoundingClientRect();
+    return {
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top
+    };
 }
