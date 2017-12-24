@@ -5,6 +5,13 @@ $(function () {
 
     loadMapBtn.click(loadMap);
     mapFile.on('change', setMap);
+    // Development only
+    var img = new Image();
+    img.onload = function() {
+        var ctx = $('#map').get(0).getContext('2d');
+        ctx.drawImage(img, 0, 0);
+    };
+    img.src = 'upload/plan1.png';
 });
 
 function loadMap() {
