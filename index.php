@@ -6,7 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>AR Marker Map</title>
     <link rel="stylesheet" href="vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/"
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="node_modules/vis/dist/vis.min.css">
 </head>
 <body>
 <div class="container">
@@ -60,5 +61,6 @@
 <script src="vendor/components/jquery/jquery.min.js"></script>
 <script src="js/index.js"></script>
 <script src="node_modules/neo4j-driver/lib/browser/neo4j-web.min.js"></script>
+<script type="text/javascript" src="node_modules/vis/dist/vis.js"></script>
 </body>
 </html>
