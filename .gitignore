@@ -61,3 +61,6 @@ $RECYCLE.BIN/
 
 # Composer
 /vendor
+
+# npm
+/node_modules

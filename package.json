@@ -1,0 +1,5 @@
+{
+  "devDependencies": {
+    "neo4j-driver": "~1.5.1"
+  }
+}
