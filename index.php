@@ -47,9 +47,7 @@
     </div>
 
     <div class="row">
-        <canvas width="1280" height="720" class="map" id="map">
-
-        </canvas>
+        <div class="map" id="map"></div>
     </div>
 
     <input type="file"
