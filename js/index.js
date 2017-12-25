@@ -1,3 +1,5 @@
+var counter = 1;
+
 $(function () {
     var map = $('#map');
     var loadMapBtn = $('#loadMapBtn');
@@ -5,7 +7,7 @@ $(function () {
 
     loadMapBtn.click(loadMap);
     mapFile.on('change', setMap);
-    //map.click(canvasClicked);
+    map.click(mapClicked);
 
     // Development only
     map.css('background-image', 'url(upload/plan1.png)');
@@ -17,6 +19,7 @@ function loadMap() {
 
 function setMap() {
     var file = $('#mapFile').get(0).files[0];
+
     // TODO: Save to db
 
     var reader  = new FileReader();
@@ -32,19 +35,11 @@ function setMap() {
     reader.readAsDataURL(file);
 }
 
-function  canvasClicked(event) {
+function  mapClicked(event) {
     // TODO: Save to db
 
-
-    var marker = new Image();
-    marker.onload = function() {
-        var ctx = $('#map').get(0).getContext('2d');
-        var coordinates = getMousePos(event);
-        var offset = 16;
-
-        ctx.drawImage(marker, coordinates.x - offset, coordinates.y - offset);
-    };
-    marker.src = 'upload/marker.png';
+    console.log('map clicked');
+    putMarkerOnMap();
 }
 
 function getMousePos(event) {
@@ -54,6 +49,26 @@ function getMousePos(event) {
         x: event.clientX - rect.left,
         y: event.clientY - rect.top
     };
+}
+
+function putMarkerOnMap() {
+    // Create DOM elements
+    var outerDiv = $('<div/>');
+    var img = $('<img/>');
+    var p = $('<p/>');
+
+    // Setup created elements
+    outerDiv.addClass('marker');
+    outerDiv.attr('id', 'marker' + counter);
+    outerDiv.css('left', (event.clientX - 16) + 'px');
+    outerDiv.css('top', (event.clientY - 16) + 'px');
+    img.attr('src', 'upload/marker.png');
+    p.text(counter++);
+
+    // Add elements to DOM structure
+    outerDiv.append(img);
+    outerDiv.append(p);
+    $('#map').after(outerDiv);
 }
 
 function getDriver() {
