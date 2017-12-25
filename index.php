@@ -59,5 +59,6 @@
 
 <script src="vendor/components/jquery/jquery.min.js"></script>
 <script src="js/index.js"></script>
+<script src="node_modules/neo4j-driver/lib/browser/neo4j-web.min.js"></script>
 </body>
 </html>

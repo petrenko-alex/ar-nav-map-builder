@@ -35,6 +35,7 @@ function setMap() {
 function  canvasClicked(event) {
     // TODO: Save to db
 
+
     var marker = new Image();
     marker.onload = function() {
         var ctx = $('#map').get(0).getContext('2d');
@@ -53,4 +54,28 @@ function getMousePos(event) {
         x: event.clientX - rect.left,
         y: event.clientY - rect.top
     };
+}
+
+function getDriver() {
+    return neo4j.v1.driver("bolt://localhost", neo4j.v1.auth.basic("neo4j", "neo4j"));
+}
+
+function getSession() {
+    var driver = neo4j.v1.driver("bolt://localhost", neo4j.v1.auth.basic("neo4j", "neo4j"));
+    return driver.session();
+}
+
+function testQuery() {
+    var session = getSession();
+    session
+        .run('MERGE (james:Person {name : {nameParam} }) RETURN james.name AS name', {nameParam: 'James'})
+        .then(function (result) {
+            result.records.forEach(function (record) {
+                console.log(record.get('name'));
+            });
+            session.close();
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
 }
