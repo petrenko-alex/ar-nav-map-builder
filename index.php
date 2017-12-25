@@ -47,6 +47,11 @@
         </div>
     </div>
 
+    <div class="marker">
+        <img src="upload/marker.png">
+        <p>1</p>
+    </div>
+
     <div class="row">
         <div class="map" id="map"></div>
     </div>
