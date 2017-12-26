@@ -42,8 +42,11 @@
     </nav>
 
     <div class="row">
-        <div class="col-md-4">
+        <div class="col-md-2">
             <button type="button" class="btn btn-primary" id="loadMapBtn">Загрузить карту</button>
+        </div>
+        <div class="col-md-2">
+            <select class="form-control" id="mapList"></select>
         </div>
     </div>
 
