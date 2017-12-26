@@ -13,7 +13,6 @@ $(function () {
     mapList.change(mapChanged);
 
     loadMaps();
-
 });
 
 function loadMap() {
@@ -96,7 +95,7 @@ function saveMapToDb(file) {
         {mapNameParam: mapName, mapFileParam: fileName})
         .then(function (result) {
             console.log(result);
-            if(result.records.length) {
+            if (result.records.length) {
                 var id = result.records[0].get('mapId');
                 $('#mapList option:last').attr('id', id);
             }
@@ -107,7 +106,7 @@ function saveMapToDb(file) {
 }
 
 function saveMarkerToDb(markerID) {
-    var selector ='#' + markerID;
+    var selector = '#' + markerID;
     var markerDiv = $(selector);
 
     // Get current map
@@ -145,7 +144,7 @@ function saveMarkerToDb(markerID) {
 
     // Add relationship with prev marker
     var markerNum = Number(markerName);
-    if(markerNum > 1) {
+    if (markerNum > 1) {
         var prevMarkerNum = markerNum - 1;
         session.run(
             'MATCH (prev:Marker),(cur:Marker) WHERE prev.markerName = {prevMarkerName} AND cur.markerName = {curMarkerName} CREATE(prev)-[r:NEXT]->(cur) RETURN r',
@@ -176,7 +175,7 @@ function loadMaps() {
             });
 
             // Set init map
-            if(result.records.length) {
+            if (result.records.length) {
                 var firstRecord = result.records[0];
                 setMapByFileName(firstRecord.get('mapFile'));
             }
@@ -196,4 +195,54 @@ function setMapByFileName(fileName) {
     fileName = 'upload/' + fileName;
     var url = 'url(\'' + fileName + '\')';
     map.css('background-image', url);
+
+    loadMarkers();
+}
+
+function loadMarkers() {
+    var curMapId = $('#mapList').find(':selected').attr('id');
+
+    var session = getSession();
+    session.run(
+        'MATCH(marker:Marker)-[r:PLACED_ON]->(map:Map) WHERE ID(map) = {mapId} RETURN marker',
+        {mapId: Number(curMapId)})
+        .then(function (result) {
+            result.records.forEach(function (record) {
+                putMarkerOnMapFromDb(record.get('marker').properties);
+            })
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
+}
+
+function putMarkerOnMapFromDb(markerObject) {
+    var markerId = markerObject.markerId;
+    // Create DOM elements
+    var outerDiv = $('<div/>');
+    var img = $('<img/>');
+    var p = $('<p/>');
+
+    // Setup created elements
+    outerDiv.addClass('marker');
+    outerDiv.attr('id', markerId);
+    outerDiv.css('left', markerObject.x);
+    outerDiv.css('top', markerObject.y);
+    img.attr('src', 'upload/marker.png');
+    p.text(markerObject.markerName);
+
+    // Init counter
+    console.log(counter);
+    var markerNum = Number(markerObject.markerName);
+    if(counter < markerNum) {
+        counter = markerNum + 1;
+    }
+    console.log(counter);
+
+    // Add elements to DOM structure
+    outerDiv.append(img);
+    outerDiv.append(p);
+    $('#map').after(outerDiv);
+
+    return markerId;
 }
