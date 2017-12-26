@@ -44,6 +44,8 @@ function setMap() {
         $('#mapList option:last').attr('selected', 'selected');
 
         saveMapToDb(file, dataUri);
+
+        $('div.marker').remove();
     };
 
     reader.onerror = function (event) {
@@ -201,6 +203,8 @@ function setMapByFileName(fileName) {
     var url = 'url(\'' + fileName + '\')';
     map.css('background-image', url);
 
+    // Re-initialize markers
+    $('div.marker').remove();
     loadMarkers();
 }
 
