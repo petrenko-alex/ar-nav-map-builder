@@ -248,10 +248,13 @@ function putMarkerOnMapFromDb(markerObject) {
 }
 
 function deleteMarkers() {
+    var curMapId = $('#mapList').find(':selected').attr('id');
+    console.log(curMapId);
     // Delete from db
     var session = getSession();
     session.run(
-        'MATCH (markers: Marker) DETACH DELETE markers')
+        'MATCH (markers: Marker) WHERE markers.mapId = {mapIdParam} DETACH DELETE markers',
+        {mapIdParam: String(curMapId)})
         .then(function (result) {
             console.log(result);
         })
