@@ -48,6 +48,9 @@
         <div class="col-md-2">
             <select class="form-control" id="mapList"></select>
         </div>
+        <div class="col-md-2">
+            <button type="button" class="btn btn-danger" id="delMarkersBtn">Удалить метки</button>
+        </div>
     </div>
 
     <div class="row">

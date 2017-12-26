@@ -5,12 +5,14 @@ $(function () {
     var loadMapBtn = $('#loadMapBtn');
     var mapFile = $('#mapFile');
     var mapList = $('#mapList');
+    var delMarkersBtn = $('#delMarkersBtn');
 
     // Set bindings
     loadMapBtn.click(loadMap);
     mapFile.on('change', setMap);
     map.click(mapClicked);
     mapList.change(mapChanged);
+    delMarkersBtn.click(deleteMarkers);
 
     loadMaps();
 });
@@ -232,12 +234,10 @@ function putMarkerOnMapFromDb(markerObject) {
     p.text(markerObject.markerName);
 
     // Init counter
-    console.log(counter);
     var markerNum = Number(markerObject.markerName);
     if(counter < markerNum) {
         counter = markerNum + 1;
     }
-    console.log(counter);
 
     // Add elements to DOM structure
     outerDiv.append(img);
@@ -245,4 +245,20 @@ function putMarkerOnMapFromDb(markerObject) {
     $('#map').after(outerDiv);
 
     return markerId;
+}
+
+function deleteMarkers() {
+    // Delete from db
+    var session = getSession();
+    session.run(
+        'MATCH (markers: Marker) DETACH DELETE markers')
+        .then(function (result) {
+            console.log(result);
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
+
+    // Delete from map
+    $('div.marker').remove();
 }
