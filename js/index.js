@@ -122,8 +122,8 @@ function saveMarkerToDb(markerID) {
     // Save marker node
     var session = getSession();
     session.run(
-        'CREATE (marker:Marker {markerName: {markerNameParam}, markerId: {markerIdParam}, x: {xParam}, y: {yParam}})',
-        {markerNameParam: markerName, markerIdParam: markerID, xParam: markerX, yParam: markerY})
+        'CREATE (marker:Marker {markerName: {markerNameParam}, markerId: {markerIdParam}, x: {xParam}, y: {yParam}, mapId: {mapIdParam}})',
+        {markerNameParam: markerName, markerIdParam: markerID, xParam: markerX, yParam: markerY, mapIdParam: curMapId})
         .then(function (result) {
             console.log('create node');
             console.log(result);
@@ -149,7 +149,7 @@ function saveMarkerToDb(markerID) {
     if (markerNum > 1) {
         var prevMarkerNum = markerNum - 1;
         session.run(
-            'MATCH (prev:Marker),(cur:Marker) WHERE prev.markerName = {prevMarkerName} AND cur.markerName = {curMarkerName} CREATE(prev)-[r:NEXT]->(cur) RETURN r',
+            'MATCH (prev:Marker),(cur:Marker) WHERE prev.markerName = {prevMarkerName} AND cur.markerName = {curMarkerName} AND prev.mapId = cur.mapId CREATE(prev)-[r:NEXT]->(cur) RETURN r',
             {prevMarkerName: String(prevMarkerNum), curMarkerName: String(markerNum)})
             .then(function (result) {
                 console.log('create rel with prev node');
