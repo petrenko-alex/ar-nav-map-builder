@@ -14,8 +14,6 @@ $(function () {
 
     loadMaps();
 
-    // Development only
-
 });
 
 function loadMap() {
@@ -52,22 +50,12 @@ function setMap() {
 }
 
 function mapClicked(event) {
-    // TODO: Save to db
-
-    console.log('map clicked');
-    putMarkerOnMap();
-}
-
-function getMousePos(event) {
-    var canvas = $('#map');
-    var rect = canvas.get(0).getBoundingClientRect();
-    return {
-        x: event.clientX - rect.left,
-        y: event.clientY - rect.top
-    };
+    var markerID = putMarkerOnMap();
+    saveMarkerToDb(markerID);
 }
 
 function putMarkerOnMap() {
+    var markerId = 'marker' + counter;
     // Create DOM elements
     var outerDiv = $('<div/>');
     var img = $('<img/>');
@@ -75,7 +63,7 @@ function putMarkerOnMap() {
 
     // Setup created elements
     outerDiv.addClass('marker');
-    outerDiv.attr('id', 'marker' + counter);
+    outerDiv.attr('id', markerId);
     outerDiv.css('left', (event.clientX - 16) + 'px');
     outerDiv.css('top', (event.clientY - 16) + 'px');
     img.attr('src', 'upload/marker.png');
@@ -85,6 +73,8 @@ function putMarkerOnMap() {
     outerDiv.append(img);
     outerDiv.append(p);
     $('#map').after(outerDiv);
+
+    return markerId;
 }
 
 function getDriver() {
@@ -114,6 +104,44 @@ function saveMapToDb(file) {
         .catch(function (error) {
             console.log(error);
         });
+}
+
+function saveMarkerToDb(markerID) {
+    var selector ='#' + markerID;
+    var markerDiv = $(selector);
+
+    // Get current map
+    var curMapId = $('#mapList').find(':selected').attr('id');
+
+    // Get marker properties
+    var markerX = markerDiv.css('left');
+    var markerY = markerDiv.css('top');
+    var markerName = markerDiv.find('p').text();
+
+    // Save marker node
+    var session = getSession();
+    session.run(
+        'CREATE (marker:Marker {markerName: {markerNameParam}, markerId: {markerIdParam}, x: {xParam}, y: {yParam}})',
+        {markerNameParam: markerName, markerIdParam: markerID, xParam: markerX, yParam: markerY})
+        .then(function (result) {
+            console.log(result);
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
+
+    // Add relationship with map
+    session.run(
+        'MATCH (map:Map),(marker:Marker) WHERE ID(map) = {mapIdParam} AND marker.markerId = {markerIdParam} CREATE(marker)-[r:PLACED_ON]->(map) RETURN r',
+        {mapIdParam: Number(curMapId), markerIdParam: '' + markerID + ''})
+        .then(function (result) {
+            console.log(result);
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
+
+    // Add relationship with prev marker
 }
 
 function loadMaps() {
