@@ -124,6 +124,7 @@ function saveMarkerToDb(markerID) {
         'CREATE (marker:Marker {markerName: {markerNameParam}, markerId: {markerIdParam}, x: {xParam}, y: {yParam}})',
         {markerNameParam: markerName, markerIdParam: markerID, xParam: markerX, yParam: markerY})
         .then(function (result) {
+            console.log('create node');
             console.log(result);
         })
         .catch(function (error) {
@@ -135,6 +136,7 @@ function saveMarkerToDb(markerID) {
         'MATCH (map:Map),(marker:Marker) WHERE ID(map) = {mapIdParam} AND marker.markerId = {markerIdParam} CREATE(marker)-[r:PLACED_ON]->(map) RETURN r',
         {mapIdParam: Number(curMapId), markerIdParam: '' + markerID + ''})
         .then(function (result) {
+            console.log('create rel with map');
             console.log(result);
         })
         .catch(function (error) {
@@ -142,6 +144,20 @@ function saveMarkerToDb(markerID) {
         });
 
     // Add relationship with prev marker
+    var markerNum = Number(markerName);
+    if(markerNum > 1) {
+        var prevMarkerNum = markerNum - 1;
+        session.run(
+            'MATCH (prev:Marker),(cur:Marker) WHERE prev.markerName = {prevMarkerName} AND cur.markerName = {curMarkerName} CREATE(prev)-[r:NEXT]->(cur) RETURN r',
+            {prevMarkerName: String(prevMarkerNum), curMarkerName: String(markerNum)})
+            .then(function (result) {
+                console.log('create rel with prev node');
+                console.log(result);
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+    }
 }
 
 function loadMaps() {
