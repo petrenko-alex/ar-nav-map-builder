@@ -11,3 +11,11 @@
     position: absolute;
     text-align: center;
 }
+
+#delMapBtn {
+    margin-left:10px;
+}
+
+#controlPanel {
+    margin-bottom: 10px;
+}

@@ -6,6 +6,7 @@ $(function () {
     var mapFile = $('#mapFile');
     var mapList = $('#mapList');
     var delMarkersBtn = $('#delMarkersBtn');
+    var delMapBtn = $('#delMapBtn');
 
     // Set bindings
     loadMapBtn.click(loadMap);
@@ -13,6 +14,7 @@ $(function () {
     map.click(mapClicked);
     mapList.change(mapChanged);
     delMarkersBtn.click(deleteMarkers);
+    delMapBtn.click(deleteMap);
 
     loadMaps();
 });
@@ -23,6 +25,7 @@ function loadMap() {
 
 function setMap() {
     var file = $('#mapFile').get(0).files[0];
+    console.log(file);
     var fileName = file.name;
     var mapList = $('#mapList');
 
@@ -249,7 +252,6 @@ function putMarkerOnMapFromDb(markerObject) {
 
 function deleteMarkers() {
     var curMapId = $('#mapList').find(':selected').attr('id');
-    console.log(curMapId);
     // Delete from db
     var session = getSession();
     session.run(
@@ -264,4 +266,34 @@ function deleteMarkers() {
 
     // Delete from map
     $('div.marker').remove();
+}
+
+function deleteMap() {
+    var curMapId = $('#mapList').find(':selected').attr('id');
+    // Delete from db
+    var session = getSession();
+    session.run(
+        'MATCH(map:Map) WHERE ID(map) = {mapIdParam} DELETE map',
+        {mapIdParam: Number(curMapId)})
+        .then(function (result) {
+            // Delete from list
+            var selector = 'select#mapList option#' + curMapId ;
+            $(selector).remove();
+
+            // Set other map or empty
+            var curMapFileName = $('#mapList').find(':last').attr('value');
+            if(curMapFileName !== undefined) {
+                setMapByFileName(curMapFileName);
+            } else {
+                $('#map').css('background-image', 'url()');
+            }
+        })
+        .catch(function (error) {
+            console.log(error);
+            var alert = $('<div>');
+            alert.addClass('alert');
+            alert.addClass('alert-danger');
+            alert.text('Сначала нужно удалить все метки с карты.');
+            $('#controlPanel').after(alert);
+        });
 }

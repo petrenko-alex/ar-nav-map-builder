@@ -41,15 +41,18 @@
         </div>
     </nav>
 
-    <div class="row">
+    <div class="row" id="controlPanel">
         <div class="col-md-2">
             <button type="button" class="btn btn-primary" id="loadMapBtn">Загрузить карту</button>
         </div>
         <div class="col-md-2">
             <select class="form-control" id="mapList"></select>
         </div>
-        <div class="col-md-2">
+        <div class="col-md-1">
             <button type="button" class="btn btn-danger" id="delMarkersBtn">Удалить метки</button>
+        </div>
+        <div class="col-md-1">
+            <button type="button" class="btn btn-danger" id="delMapBtn">Удалить карту</button>
         </div>
     </div>
 
