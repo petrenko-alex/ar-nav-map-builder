@@ -12,7 +12,6 @@ $(function () {
     map.click(mapClicked);
     mapList.change(mapChanged);
 
-
     loadMaps();
 
     // Development only
@@ -25,11 +24,23 @@ function loadMap() {
 
 function setMap() {
     var file = $('#mapFile').get(0).files[0];
+    var fileName = file.name;
+    var mapList = $('#mapList');
 
     var reader = new FileReader();
     reader.onload = function (event) {
+        // Set background
         var dataUri = event.target.result;
         $('#map').css('background-image', 'url(' + dataUri + ')');
+
+        // Add map to list
+        var mapName = fileName.substring(0, fileName.search('.png'));
+        var map = $('<option/>');
+        map.attr('value', fileName);
+        map.text(mapName);
+        mapList.append(map);
+        $('#mapList option:last').attr('selected', 'selected');
+
         saveMapToDb(file, dataUri);
     };
 
@@ -91,11 +102,14 @@ function saveMapToDb(file) {
 
     var session = getSession();
     session.run(
-        'CREATE (:Map {mapName: {mapNameParam}, mapFile: {mapFileParam}})',
-        {mapNameParam: mapName, mapFileParam: fileName}
-    )
+        'CREATE (map:Map {mapName: {mapNameParam}, mapFile: {mapFileParam}}) RETURN ID(map) AS mapId',
+        {mapNameParam: mapName, mapFileParam: fileName})
         .then(function (result) {
             console.log(result);
+            if(result.records.length) {
+                var id = result.records[0].get('mapId');
+                $('#mapList option:last').attr('id', id);
+            }
         })
         .catch(function (error) {
             console.log(error);
@@ -106,7 +120,7 @@ function loadMaps() {
     var mapList = $('#mapList');
     var session = getSession();
     session
-        .run('MATCH (maps:Map) RETURN maps.mapName AS mapName, maps.mapFile AS mapFile, maps.id AS mapId')
+        .run('MATCH (maps:Map) RETURN maps.mapName AS mapName, maps.mapFile AS mapFile, ID(maps) AS mapId')
         .then(function (result) {
             console.log(result);
             result.records.forEach(function (record) {
