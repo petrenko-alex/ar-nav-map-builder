@@ -27,7 +27,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="https://github.com/gafk/AR-Marker-Map">AR Marker Map</a>
+                <a class="navbar-brand" href="https://github.com/petrenko-alex/ar-nav-map-builder">AR-Nav Map Builder</a>
             </div>
             <div id="navbar" class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
@@ -48,10 +48,10 @@
         <div class="col-md-2">
             <select class="form-control" id="mapList"></select>
         </div>
-        <div class="col-md-1">
+        <div class="col-md-2">
             <button type="button" class="btn btn-danger" id="delMarkersBtn">Удалить метки</button>
         </div>
-        <div class="col-md-1">
+        <div class="col-md-2">
             <button type="button" class="btn btn-danger" id="delMapBtn">Удалить карту</button>
         </div>
     </div>
