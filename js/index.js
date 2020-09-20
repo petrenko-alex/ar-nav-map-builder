@@ -1,4 +1,6 @@
 var counter = 1;
+var username = 'neo4j';
+var password = 'neo4j';
 
 $(function () {
     var map = $('#map');
@@ -83,12 +85,8 @@ function putMarkerOnMap() {
     return markerId;
 }
 
-function getDriver() {
-    return neo4j.v1.driver("bolt://localhost", neo4j.v1.auth.basic("neo4j", "neo4j"));
-}
-
 function getSession() {
-    var driver = neo4j.v1.driver("bolt://localhost", neo4j.v1.auth.basic("neo4j", "neo4j"));
+    var driver = neo4j.driver("bolt://localhost", neo4j.auth.basic(username, password));
     return driver.session();
 }
 
@@ -98,7 +96,7 @@ function saveMapToDb(file) {
 
     var session = getSession();
     session.run(
-        'CREATE (map:Map {mapName: {mapNameParam}, mapFile: {mapFileParam}}) RETURN ID(map) AS mapId',
+        'CREATE (map:Map {mapName: $mapNameParam, mapFile: $mapFileParam}) RETURN ID(map) AS mapId',
         {mapNameParam: mapName, mapFileParam: fileName})
         .then(function (result) {
             console.log(result);
@@ -127,7 +125,7 @@ function saveMarkerToDb(markerID) {
     // Save marker node
     var session = getSession();
     session.run(
-        'CREATE (marker:Marker {markerName: {markerNameParam}, markerId: {markerIdParam}, x: {xParam}, y: {yParam}, mapId: {mapIdParam}})',
+        'CREATE (marker:Marker {markerName: $markerNameParam, markerId: $markerIdParam, x: $xParam, y: $yParam, mapId: $mapIdParam})',
         {markerNameParam: markerName, markerIdParam: markerID, xParam: markerX, yParam: markerY, mapIdParam: curMapId})
         .then(function (result) {
             console.log('create node');
@@ -138,8 +136,9 @@ function saveMarkerToDb(markerID) {
         });
 
     // Add relationship with map
+    session = getSession();
     session.run(
-        'MATCH (map:Map),(marker:Marker) WHERE ID(map) = {mapIdParam} AND marker.markerId = {markerIdParam} CREATE(marker)-[r:PLACED_ON]->(map) RETURN r',
+        'MATCH (map:Map),(marker:Marker) WHERE ID(map) = $mapIdParam AND marker.markerId = $markerIdParam CREATE(marker)-[r:PLACED_ON]->(map) RETURN r',
         {mapIdParam: Number(curMapId), markerIdParam: '' + markerID + ''})
         .then(function (result) {
             console.log('create rel with map');
@@ -153,8 +152,9 @@ function saveMarkerToDb(markerID) {
     var markerNum = Number(markerName);
     if (markerNum > 1) {
         var prevMarkerNum = markerNum - 1;
+        session = getSession();
         session.run(
-            'MATCH (prev:Marker),(cur:Marker) WHERE prev.markerName = {prevMarkerName} AND cur.markerName = {curMarkerName} AND prev.mapId = cur.mapId CREATE(prev)-[r:NEXT]->(cur) RETURN r',
+            'MATCH (prev:Marker),(cur:Marker) WHERE prev.markerName = $prevMarkerName AND cur.markerName = $curMarkerName AND prev.mapId = cur.mapId CREATE(prev)-[r:NEXT]->(cur) RETURN r',
             {prevMarkerName: String(prevMarkerNum), curMarkerName: String(markerNum)})
             .then(function (result) {
                 console.log('create rel with prev node');
@@ -213,7 +213,7 @@ function loadMarkers() {
 
     var session = getSession();
     session.run(
-        'MATCH(marker:Marker)-[r:PLACED_ON]->(map:Map) WHERE ID(map) = {mapId} RETURN marker',
+        'MATCH(marker:Marker)-[r:PLACED_ON]->(map:Map) WHERE ID(map) = $mapId RETURN marker',
         {mapId: Number(curMapId)})
         .then(function (result) {
             result.records.forEach(function (record) {
@@ -259,7 +259,7 @@ function deleteMarkers() {
     // Delete from db
     var session = getSession();
     session.run(
-        'MATCH (markers: Marker) WHERE markers.mapId = {mapIdParam} DETACH DELETE markers',
+        'MATCH (markers: Marker) WHERE markers.mapId = $mapIdParam DETACH DELETE markers',
         {mapIdParam: String(curMapId)})
         .then(function (result) {
             console.log(result);
@@ -277,7 +277,7 @@ function deleteMap() {
     // Delete from db
     var session = getSession();
     session.run(
-        'MATCH(map:Map) WHERE ID(map) = {mapIdParam} DELETE map',
+        'MATCH(map:Map) WHERE ID(map) = $mapIdParam DELETE map',
         {mapIdParam: Number(curMapId)})
         .then(function (result) {
             // Delete from list
